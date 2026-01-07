@@ -11,7 +11,7 @@ from enum import Enum
 from pathlib import Path
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings as PydanticBaseSettings, SettingsConfigDict
 
 from .. import __version__
 
@@ -57,6 +57,15 @@ class DatabaseType(str, Enum):
 
     SQLITE = "sqlite"
     POSTGRESQL = "postgresql"
+
+
+class BaseSettings(PydanticBaseSettings):
+    @field_validator("*", mode="before")
+    @classmethod
+    def empty_str_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 
 class BotConfig(BaseSettings):
