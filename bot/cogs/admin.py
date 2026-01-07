@@ -1,10 +1,16 @@
-"""Admin commands cog."""
+"""
+Admin commands cog.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, Optional
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 if TYPE_CHECKING:
@@ -23,67 +29,70 @@ class Admin(commands.Cog):
         """
         self.bot = bot
 
-    async def cog_check(self, ctx: commands.Context) -> bool:
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
         """
         Check if user has permission to use admin commands.
 
         Args:
-            ctx: Command context
+            interaction: The interaction
 
         Returns:
             True if user is authorized
         """
-        return await self.bot.is_owner(ctx.author)
+        return await self.bot.is_owner(interaction.user)
 
-    @commands.command(name="sync")
+    @app_commands.command(name="sync", description="Sync slash commands")
+    @app_commands.describe(
+        spec="Sync specification: global (default), current, copy, or clear"
+    )
+    @app_commands.choices(spec=[
+        app_commands.Choice(name="Global", value="global"),
+        app_commands.Choice(name="Current Guild", value="current"),
+        app_commands.Choice(name="Copy Global to Guild", value="copy"),
+        app_commands.Choice(name="Clear Guild", value="clear"),
+    ])
     async def sync_commands(
             self,
-            ctx: commands.Context,
-            guild_id: Optional[int] = None,
-            spec: Optional[Literal["~", "*", "^"]] = None,
+            interaction: discord.Interaction,
+            spec: Optional[app_commands.Choice[str]] = None,
     ) -> None:
         """
         Sync slash commands.
 
         Args:
-            guild_id: Optional guild ID to sync to
-            spec: Sync specification
-                ~ - sync current guild
-                * - copy global to current guild
-                ^ - clear current guild and sync
+            spec: Sync specification choice
         """
-        if spec == "~":
-            # Sync current guild
-            synced = await self.bot.tree.sync(guild=ctx.guild)
-            await ctx.send(f"✅ Synced {len(synced)} commands to current guild")
+        await interaction.response.defer(ephemeral=True)
 
-        elif spec == "*":
+        spec_value = spec.value if spec else "global"
+
+        if spec_value == "current":
+            # Sync current guild
+            synced = await self.bot.tree.sync(guild=interaction.guild)
+            await interaction.followup.send(f"✅ Synced {len(synced)} commands to current guild")
+
+        elif spec_value == "copy":
             # Copy global to current guild
-            self.bot.tree.copy_global_to(guild=ctx.guild)
-            synced = await self.bot.tree.sync(guild=ctx.guild)
-            await ctx.send(
+            self.bot.tree.copy_global_to(guild=interaction.guild)
+            synced = await self.bot.tree.sync(guild=interaction.guild)
+            await interaction.followup.send(
                 f"✅ Copied and synced {len(synced)} commands to current guild"
             )
 
-        elif spec == "^":
+        elif spec_value == "clear":
             # Clear current guild and sync
-            self.bot.tree.clear_commands(guild=ctx.guild)
-            await self.bot.tree.sync(guild=ctx.guild)
-            await ctx.send("✅ Cleared commands from current guild")
-
-        elif guild_id:
-            # Sync to specific guild
-            guild = discord.Object(id=guild_id)
-            synced = await self.bot.tree.sync(guild=guild)
-            await ctx.send(f"✅ Synced {len(synced)} commands to guild {guild_id}")
+            self.bot.tree.clear_commands(guild=interaction.guild)
+            await self.bot.tree.sync(guild=interaction.guild)
+            await interaction.followup.send("✅ Cleared commands from current guild")
 
         else:
             # Global sync
             synced = await self.bot.tree.sync()
-            await ctx.send(f"✅ Synced {len(synced)} commands globally")
+            await interaction.followup.send(f"✅ Synced {len(synced)} commands globally")
 
-    @commands.command(name="reload")
-    async def reload_extension(self, ctx: commands.Context, extension: str) -> None:
+    @app_commands.command(name="reload", description="Reload a cog/extension")
+    @app_commands.describe(extension="Name of the extension to reload")
+    async def reload_extension(self, interaction: discord.Interaction, extension: str) -> None:
         """
         Reload a cog/extension.
 
@@ -92,14 +101,15 @@ class Admin(commands.Cog):
         """
         try:
             await self.bot.reload_extension(f"bot.cogs.{extension}")
-            await ctx.send(f"✅ Reloaded extension: {extension}")
+            await interaction.response.send_message(f"✅ Reloaded extension: {extension}", ephemeral=True)
             self.bot.logger.info(f"Reloaded extension: {extension}")
         except Exception as e:
-            await ctx.send(f"❌ Failed to reload extension: {e}")
+            await interaction.response.send_message(f"❌ Failed to reload extension: {e}", ephemeral=True)
             self.bot.logger.error(f"Failed to reload extension {extension}: {e}")
 
-    @commands.command(name="load")
-    async def load_extension(self, ctx: commands.Context, extension: str) -> None:
+    @app_commands.command(name="load", description="Load a cog/extension")
+    @app_commands.describe(extension="Name of the extension to load")
+    async def load_extension(self, interaction: discord.Interaction, extension: str) -> None:
         """
         Load a cog/extension.
 
@@ -108,14 +118,15 @@ class Admin(commands.Cog):
         """
         try:
             await self.bot.load_extension(f"bot.cogs.{extension}")
-            await ctx.send(f"✅ Loaded extension: {extension}")
+            await interaction.response.send_message(f"✅ Loaded extension: {extension}", ephemeral=True)
             self.bot.logger.info(f"Loaded extension: {extension}")
         except Exception as e:
-            await ctx.send(f"❌ Failed to load extension: {e}")
+            await interaction.response.send_message(f"❌ Failed to load extension: {e}", ephemeral=True)
             self.bot.logger.error(f"Failed to load extension {extension}: {e}")
 
-    @commands.command(name="unload")
-    async def unload_extension(self, ctx: commands.Context, extension: str) -> None:
+    @app_commands.command(name="unload", description="Unload a cog/extension")
+    @app_commands.describe(extension="Name of the extension to unload")
+    async def unload_extension(self, interaction: discord.Interaction, extension: str) -> None:
         """
         Unload a cog/extension.
 
@@ -124,19 +135,19 @@ class Admin(commands.Cog):
         """
         try:
             await self.bot.unload_extension(f"bot.cogs.{extension}")
-            await ctx.send(f"✅ Unloaded extension: {extension}")
+            await interaction.response.send_message(f"✅ Unloaded extension: {extension}", ephemeral=True)
             self.bot.logger.info(f"Unloaded extension: {extension}")
         except Exception as e:
-            await ctx.send(f"❌ Failed to unload extension: {e}")
+            await interaction.response.send_message(f"❌ Failed to unload extension: {e}", ephemeral=True)
             self.bot.logger.error(f"Failed to unload extension {extension}: {e}")
 
-    @commands.command(name="cogs")
-    async def list_cogs(self, ctx: commands.Context) -> None:
+    @app_commands.command(name="cogs", description="List all loaded cogs")
+    async def list_cogs(self, interaction: discord.Interaction) -> None:
         """List all loaded cogs."""
         cogs = [cog for cog in self.bot.cogs.keys()]
 
         if not cogs:
-            await ctx.send("No cogs loaded.")
+            await interaction.response.send_message("No cogs loaded.", ephemeral=True)
             return
 
         embed = discord.Embed(
@@ -144,27 +155,27 @@ class Admin(commands.Cog):
             description="\n".join(f"• {cog}" for cog in sorted(cogs)),
             color=discord.Color.blue(),
         )
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @commands.command(name="shutdown")
-    async def shutdown_bot(self, ctx: commands.Context) -> None:
+    @app_commands.command(name="shutdown", description="Shutdown the bot")
+    async def shutdown_bot(self, interaction: discord.Interaction) -> None:
         """Shutdown the bot."""
-        await ctx.send("👋 Shutting down...")
-        self.bot.logger.info(f"Shutdown command issued by {ctx.author}")
+        await interaction.response.send_message("👋 Shutting down...", ephemeral=True)
+        self.bot.logger.info(f"Shutdown command issued by {interaction.user}")
         await self.bot.close()
 
-    @commands.command(name="dbhealth")
-    async def database_health(self, ctx: commands.Context) -> None:
+    @app_commands.command(name="dbhealth", description="Check database connection health")
+    async def database_health(self, interaction: discord.Interaction) -> None:
         """Check database connection health."""
         if not self.bot.db:
-            await ctx.send("❌ Database not initialized")
+            await interaction.response.send_message("❌ Database not initialized", ephemeral=True)
             return
 
         is_healthy = await self.bot.db.health_check()
         if is_healthy:
-            await ctx.send("✅ Database connection is healthy")
+            await interaction.response.send_message("✅ Database connection is healthy", ephemeral=True)
         else:
-            await ctx.send("❌ Database connection is unhealthy")
+            await interaction.response.send_message("❌ Database connection is unhealthy", ephemeral=True)
 
 
 async def setup(bot: DiscordBot) -> None:

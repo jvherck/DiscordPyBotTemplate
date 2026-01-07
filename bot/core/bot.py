@@ -1,4 +1,9 @@
-"""Core Discord bot implementation."""
+"""
+Core Discord bot implementation.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 
@@ -141,11 +146,21 @@ class DiscordBot(commands.Bot):
             self.logger.warning(f"Cogs directory not found: {cogs_dir}")
             return
 
+        # Get list of cogs to ignore
+        ignored_cogs = self.config.get_ignored_cogs_list()
+        if ignored_cogs:
+            self.logger.info(f"Ignoring cogs: {', '.join(ignored_cogs)}")
+
         loaded = 0
         failed = 0
 
         for cog_file in cogs_dir.glob("*.py"):
             if cog_file.name.startswith("_"):
+                continue
+
+            # Check if this cog should be ignored
+            if cog_file.stem in ignored_cogs:
+                self.logger.info(f"Skipping ignored cog: {cog_file.stem}")
                 continue
 
             cog_name = f"bot.cogs.{cog_file.stem}"

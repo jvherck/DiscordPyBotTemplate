@@ -1,4 +1,9 @@
-"""Main entry point for the Discord bot."""
+"""
+Main entry point for the Discord bot.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 

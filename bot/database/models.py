@@ -1,4 +1,9 @@
-"""Database models using SQLAlchemy."""
+"""
+Database models using SQLAlchemy.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 

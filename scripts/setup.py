@@ -10,7 +10,7 @@ def main():
     print("=" * 50)
 
     # Check Python version
-    if sys.version_info < (3, 11):
+    if sys.version_info < (3, 11, 0):
         print("❌ Python 3.11 or higher is required!")
         print(f"   Current version: {sys.version}")
         sys.exit(1)

@@ -1,6 +1,6 @@
-# Discord Bot Template
+# Discord.py Bot Template
 
-A professional, enterprise-level Discord bot template built with Python 3.11+ and discord.py 2.6.4. This template provides a solid foundation for building scalable, maintainable Discord bots with modern best practices.
+A modern, production-ready Discord bot boilerplate built with Python 3.11+ and discord.py 2.6.4. Use this as your starting point to build scalable, maintainable Discord bots with clean architecture and modern best practices.
 
 ## Features
 
@@ -20,45 +20,49 @@ A professional, enterprise-level Discord bot template built with Python 3.11+ an
 - 📦 Easy setup with Docker and docker-compose
 - 🔒 Environment-based configuration with .env
 - 📋 Type hints throughout the codebase
-- 🧪 Ready for pytest integration
-- 🎯 Slash commands and prefix commands support
+- 🎯 **Slash commands only** (modern Discord UI)
 - 🔌 Hot-reloadable extensions
 - 📊 Database health monitoring
+- 📚 Template cogs for slash commands and events
+- 🚫 Ignore specific cogs during development (IGNORED_COGS)
+- 📌 Single source of truth for versioning (pyproject.toml)
 
 ## Project Structure
 
 ```
 DiscordPyBotTemplate/
 ├── bot/
-│   ├── __init__.py
+│   ├── __init__.py             # Package init + version management
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── bot.py              # Main bot class
-│   │   └── config.py           # Configuration management
+│   │   └── config.py           # Configuration with Pydantic
 │   ├── cogs/
 │   │   ├── __init__.py
-│   │   ├── general.py          # General commands
-│   │   └── admin.py            # Admin commands
+│   │   ├── general.py          # General slash commands
+│   │   ├── admin.py            # Admin slash commands (owner only)
+│   │   ├── template_slash.py   # Template for slash commands
+│   │   └── template_events.py  # Template for event listeners
 │   ├── database/
 │   │   ├── __init__.py
-│   │   ├── models.py           # Database models
-│   │   └── manager.py          # Database manager
+│   │   ├── models.py           # SQLAlchemy models
+│   │   └── manager.py          # Database operations
 │   └── utils/
 │       ├── __init__.py
-│       └── logger.py           # Logging utilities
+│       └── logger.py           # Colored logging setup
 ├── logs/                       # Log files (auto-created)
-├── data/                       # Database files (auto-created)
-├── .env.example                # Example environment variables
+├── data/                       # SQLite database (auto-created)
+├── .env.example                # Example configuration
 ├── .gitignore
 ├── requirements.txt
-├── pyproject.toml
+├── pyproject.toml              # Project metadata + version (single source of truth)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── main.py                     # Entry point
 └── README.md
 ```
 
-## Quick Start
+## Getting Started
 
 ### Prerequisites
 
@@ -69,12 +73,12 @@ DiscordPyBotTemplate/
 
 ### Installation
 
-#### Option 1: Local Setup
+#### Option 1: Use as Template (Recommended)
 
-1. **Clone the repository**
+1. **Click "Use this template" on GitHub** or clone the repository
    ```bash
-   git clone <your-repo-url>
-   cd DiscordPyBotTemplate
+   git clone https://github.com/jvherck/DiscordPyBotTemplate.git my-discord-bot
+   cd my-discord-bot
    ```
 
 2. **Create a virtual environment**
@@ -153,11 +157,13 @@ DISCORD_TOKEN=your_bot_token_here
 
 #### Bot Settings
 ```env
-DISCORD_PREFIX=!                    # Command prefix
+DISCORD_PREFIX=!                    # Command prefix (not used for regular commands - only admin)
 BOT_NAME=MyDiscordBot              # Bot name for logging
-BOT_VERSION=1.0.0                  # Bot version
 ENVIRONMENT=development            # development, staging, production
+IGNORED_COGS=template_slash,template_events  # Comma-separated cogs to ignore on startup
 ```
+
+> **Note:** Version is managed in `pyproject.toml` - no need to set it in `.env`
 
 #### Database Settings
 ```env
@@ -201,35 +207,33 @@ See `.env.example` for all available configuration options.
 
 ## Usage
 
-### Creating Custom Bots
+This is a **boilerplate** - you're meant to clone/fork it and build your bot directly on top of it. This is your starting codebase, not a library to install.
 
-You can use this template in two ways:
+### Building Your Bot
 
-#### Method 1: Direct Usage
-Simply modify the configuration and add your own cogs to the `bot/cogs/` directory.
+1. **Modify the bot configuration** in `.env` to match your needs
+2. **Add your own cogs** to the `bot/cogs/` directory
+3. **Customize the bot behavior** by editing `bot/core/bot.py`
+4. **Add your own database models** in `bot/database/models.py`
+5. **Update bot metadata** in `pyproject.toml` (name, description, version, author)
 
-#### Method 2: Subclassing
-Create a custom bot by subclassing `DiscordBot`:
+### Extending the Bot Class
+
+You can subclass `DiscordBot` in `main.py` for custom initialization:
 
 ```python
 from bot import DiscordBot, BotConfig
 
-class MyCustomBot(DiscordBot):
-    """Custom bot with additional features."""
-
-    def __init__(self, config: BotConfig = None):
-        super().__init__(config)
-        # Add custom initialization here
+class MyBot(DiscordBot):
+    """Your custom bot."""
 
     async def on_ready(self):
-        """Override on_ready for custom behavior."""
         await super().on_ready()
-        # Add custom ready logic here
-        self.logger.info("Custom bot is ready!")
+        self.logger.info("My custom bot is ready!")
+        # Add your custom startup logic here
 
 if __name__ == "__main__":
-    config = BotConfig()
-    bot = MyCustomBot(config)
+    bot = MyBot()
     bot.run_bot()
 ```
 
@@ -237,9 +241,32 @@ if __name__ == "__main__":
 
 Create new cogs in the `bot/cogs/` directory. They will be automatically loaded on startup.
 
-Example cog structure:
+#### Template Cogs
+
+The template includes two example cogs (ignored by default in `.env`):
+
+1. **`template_slash.py`** - Shows how to create slash commands
+   - Simple slash commands
+   - Commands with parameters and choices
+   - Command groups (subcommands)
+   - Embed creation
+
+2. **`template_events.py`** - Shows how to handle Discord events
+   - Message events (`on_message`, `on_message_edit`, `on_message_delete`)
+   - Member events (`on_member_join`, `on_member_remove`)
+   - Reaction events (`on_reaction_add`, `on_raw_reaction_add`)
+   - Voice state events (`on_voice_state_update`)
+
+To use these templates:
+1. Copy the template file and rename it
+2. Modify the code to fit your needs
+3. Remove it from `IGNORED_COGS` in `.env` (or remove the `IGNORED_COGS` line entirely)
+
+#### Slash Command Example
 
 ```python
+import discord
+from discord import app_commands
 from discord.ext import commands
 from bot.core.bot import DiscordBot
 
@@ -249,20 +276,55 @@ class MyCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
         self.bot = bot
 
-    @commands.command(name="mycommand")
-    async def my_command(self, ctx: commands.Context):
-        """My custom command."""
-        await ctx.send("Hello!")
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        """Event listener example."""
-        pass
+    @app_commands.command(name="mycommand", description="My custom command")
+    @app_commands.describe(text="Some text parameter")
+    async def my_command(self, interaction: discord.Interaction, text: str):
+        """My custom slash command."""
+        await interaction.response.send_message(f"You said: {text}")
 
 async def setup(bot: DiscordBot):
     """Required setup function."""
     await bot.add_cog(MyCog(bot))
 ```
+
+#### Event Listener Example
+
+```python
+import discord
+from discord.ext import commands
+from bot.core.bot import DiscordBot
+
+class MyEventCog(commands.Cog):
+    """Handle Discord events."""
+
+    def __init__(self, bot: DiscordBot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        """Listen for messages."""
+        if message.author.bot:
+            return
+        # Handle message event
+        pass
+
+async def setup(bot: DiscordBot):
+    """Required setup function."""
+    await bot.add_cog(MyEventCog(bot))
+```
+
+#### Ignoring Cogs
+
+To temporarily disable a cog without deleting it, add it to `IGNORED_COGS` in your `.env` file:
+
+```env
+IGNORED_COGS=template_slash,template_events,work_in_progress_cog
+```
+
+This is useful for:
+- Keeping template cogs in your project for reference
+- Disabling work-in-progress features
+- Testing without certain cogs loaded
 
 ### Database Usage
 
@@ -309,38 +371,29 @@ class MyModel(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 ```
 
-### Admin Commands
+### Built-in Commands
 
-The bot includes built-in admin commands (owner-only):
+#### Admin Commands (Owner Only)
 
-- `!sync` - Sync slash commands globally
-- `!sync ~` - Sync slash commands to current guild
-- `!reload <cog>` - Reload a cog
-- `!load <cog>` - Load a cog
-- `!unload <cog>` - Unload a cog
-- `!cogs` - List all loaded cogs
-- `!shutdown` - Shut down the bot
-- `!dbhealth` - Check database health
+All admin commands are slash commands and only work for the bot owner:
 
-### General Commands
+- `/sync` - Sync slash commands (with options for global, current guild, copy, or clear)
+- `/reload <extension>` - Reload a cog
+- `/load <extension>` - Load a cog
+- `/unload <extension>` - Unload a cog
+- `/cogs` - List all loaded cogs
+- `/shutdown` - Shut down the bot
+- `/dbhealth` - Check database health
 
-Built-in commands available to all users:
+#### General Commands (All Users)
 
-- `!ping` or `/ping` - Check bot latency
-- `!info` or `/info` - Display bot information
-- `!serverinfo` - Display server information (guild only)
+Built-in slash commands available to all users:
+
+- `/ping` - Check bot latency
+- `/info` - Display bot information
+- `/serverinfo` - Display server information (guild only)
 
 ## Development
-
-### Running Tests
-
-```bash
-# Install dev dependencies
-pip install -e ".[dev]"
-
-# Run tests
-pytest
-```
 
 ### Code Formatting
 
@@ -357,10 +410,10 @@ mypy bot/
 
 ### Hot Reloading
 
-While the bot is running, you can reload cogs without restarting:
+While the bot is running, you can reload cogs without restarting using the `/reload` slash command in Discord:
 
-```bash
-!reload general  # Reloads the general cog
+```
+/reload general  # Reloads the general cog
 ```
 
 ## Docker Deployment
@@ -390,15 +443,14 @@ docker-compose down
 docker-compose up -d --build
 ```
 
-### Production Considerations
+### Production Tips
 
-1. **Use PostgreSQL in production** for better performance and reliability
-2. **Set `ENVIRONMENT=production`** in your `.env` file
-3. **Use strong passwords** for database credentials
-4. **Enable log rotation** to prevent disk space issues
-5. **Set up monitoring** for your bot's health
-6. **Use Docker secrets** for sensitive data in production
-7. **Regular backups** of your database
+1. Use PostgreSQL instead of SQLite for better performance
+2. Set `ENVIRONMENT=production` in your `.env` file
+3. Use strong passwords for database credentials
+4. Enable log rotation to prevent disk space issues
+5. Use Docker secrets for sensitive data
+6. Back up your database regularly
 
 ## Troubleshooting
 
@@ -449,15 +501,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - **Documentation:** [discord.py docs](https://discordpy.readthedocs.io/)
 - **Discord.py Server:** [discord.gg/dpy](https://discord.gg/dpy)
-- **Issues:** [GitHub Issues](https://github.com/yourusername/DiscordPyBotTemplate/issues)
+- **Issues:** [GitHub Issues](https://github.com/jvherck/DiscordPyBotTemplate/issues)
 
-## Acknowledgments
+## Credits
 
-- Built with [discord.py](https://github.com/Rapptz/discord.py)
-- Database management with [SQLAlchemy](https://www.sqlalchemy.org/)
-- Configuration management with [Pydantic](https://docs.pydantic.dev/)
-- Logging with [colorlog](https://github.com/borntyping/python-colorlog)
+Created by [Jan Van Herck](https://github.com/jvherck)
 
----
+Built with:
+- [discord.py](https://github.com/Rapptz/discord.py) - Discord API wrapper
+- [SQLAlchemy](https://www.sqlalchemy.org/) - Database ORM
+- [Pydantic](https://docs.pydantic.dev/) - Configuration management
+- [colorlog](https://github.com/borntyping/python-colorlog) - Colored logging
 
-**Made with ❤️ for the Discord bot developer community**
+## Contributing
+
+Feel free to submit issues and pull requests to improve this template!

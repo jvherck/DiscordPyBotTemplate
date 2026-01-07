@@ -1,4 +1,9 @@
-"""Configuration management using Pydantic settings."""
+"""
+Configuration management using Pydantic settings.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 
@@ -72,6 +77,7 @@ class BotConfig(BaseSettings):
     bot_name: str = Field(default="MyDiscordBot", description="Bot name")
     bot_version: str = Field(default=__version__, description="Bot version")
     environment: Environment = Field(default=Environment.DEVELOPMENT, description="Environment")
+    ignored_cogs: str = Field(default="", description="Comma-separated list of cogs to ignore")
 
     # Database Configuration
     database_type: DatabaseType = Field(default=DatabaseType.SQLITE, description="Database type")
@@ -165,6 +171,17 @@ class BotConfig(BaseSettings):
     def is_staging(self) -> bool:
         """Check if running in staging."""
         return self.environment == Environment.STAGING
+
+    def get_ignored_cogs_list(self) -> list[str]:
+        """
+        Get list of cogs to ignore on startup.
+
+        Returns:
+            List of cog names to ignore
+        """
+        if not self.ignored_cogs:
+            return []
+        return [cog.strip() for cog in self.ignored_cogs.split(",") if cog.strip()]
 
     def get_intents(self) -> dict[str, bool]:
         """Get Discord intents configuration."""

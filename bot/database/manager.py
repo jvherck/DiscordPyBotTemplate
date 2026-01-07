@@ -1,4 +1,9 @@
-"""Database manager for handling connections and operations."""
+"""
+Database manager for handling connections and operations.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,9 @@
-"""Custom logging configuration with color support and rotation."""
+"""
+Custom logging configuration with color support and rotation.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 from __future__ import annotations
 
