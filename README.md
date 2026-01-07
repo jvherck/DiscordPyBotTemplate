@@ -225,7 +225,7 @@ managed separately in `requirements.txt`.
 The following tools are pre-configured:
 
 - **Black (Formatter):**
-    - Configured with a **line length of 100** (instead of the default 88) to accommodate modern screens and slightly
+    - Configured with a **line length of 120** (instead of the default 88) to accommodate modern screens and slightly
       longer discord.py lines.
     - Targets Python 3.11+ syntax.
 
