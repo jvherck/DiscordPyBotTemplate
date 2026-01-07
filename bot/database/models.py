@@ -31,7 +31,6 @@ class GuildConfig(Base):
     welcome_channel_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     log_channel_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     auto_role_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    command_logging_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -94,8 +93,6 @@ class UserData(Base):
     username: Mapped[str] = mapped_column(String(100))
     experience: Mapped[int] = mapped_column(default=0)
     level: Mapped[int] = mapped_column(default=1)
-    coins: Mapped[int] = mapped_column(default=0)
-    last_daily: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
