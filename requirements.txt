@@ -1,0 +1,31 @@
+# Discord.py
+discord.py==2.6.4
+aiohttp>=3.11.0
+
+# Database
+aiosqlite>=0.20.0
+asyncpg>=0.31.0  # For PostgreSQL support
+sqlalchemy>=2.0.0
+alembic>=1.14.0  # For database migrations
+
+# Configuration
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+
+# Utilities
+python-dateutil>=2.9.0
+pytz>=2024.1
+
+# Logging
+colorlog>=6.9.0
+
+# Performance
+uvloop>=0.21.0; sys_platform != 'win32'
+
+# Development dependencies (optional)
+# pytest>=8.0.0
+# pytest-asyncio>=0.24.0
+# black>=24.0.0
+# ruff>=0.8.0
+# mypy>=1.11.0

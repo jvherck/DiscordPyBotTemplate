@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discord-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_TYPE=${DATABASE_TYPE:-sqlite}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///data/bot.db}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - postgres
+    networks:
+      - bot-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # PostgreSQL database (optional, comment out if using SQLite)
+  postgres:
+    image: postgres:17-alpine
+    container_name: discord-bot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-botuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-discord_bot}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - bot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-botuser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # pgAdmin (optional, for database management)
+  # Uncomment if you want a web interface for PostgreSQL
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: discord-bot-pgadmin
+  #   restart: unless-stopped
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@example.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "5050:80"
+  #   networks:
+  #     - bot-network
+  #   depends_on:
+  #     - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  bot-network:
+    driver: bridge
