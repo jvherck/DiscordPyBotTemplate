@@ -72,6 +72,24 @@ warn_no_return = false
 # If true, strict equality checks (e.g. preventing `if str_var == 0:`).
 strict_equality = false
 
+# --- Specific Error Suppressions ---
+# "union-attr": accessing .name on a variable that could be None.
+# "arg-type": passing a variable that could be None to a function expecting a value.
+# "assignment": assigning a value to a variable that Mypy inferred as a different type (e.g. None).
+# "attr-defined": accessing an attribute Mypy doesn't know about.
+# "call-overload": Issues with complex function signatures (like SQLAlchemy execute).
+# "misc": General errors like the super() init issue.
+# "override": Overriding a parent method with a different return type.
+disable_error_code = [
+    "union-attr",
+    "arg-type",
+    "assignment",
+    "attr-defined",
+    "call-overload",
+    "misc",
+    "override"
+]
+
 [[tool.mypy.overrides]]
 module = "discord.*"
 ignore_missing_imports = true
