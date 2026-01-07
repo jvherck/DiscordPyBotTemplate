@@ -1,4 +1,7 @@
-version: '3.8'
+# Copyright (c) 2026 Jan Van Herck
+# GitHub: https://github.com/jvherck
+
+name: DiscordBot
 
 services:
   bot:
@@ -42,7 +45,7 @@ services:
     networks:
       - bot-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-botuser}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-botuser}" ]
       interval: 10s
       timeout: 5s
       retries: 5

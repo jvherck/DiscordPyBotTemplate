@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Jan Van Herck
+# GitHub: https://github.com/jvherck
+
 # Multi-stage build for optimal image size
 FROM python:3.14-slim as builder
 

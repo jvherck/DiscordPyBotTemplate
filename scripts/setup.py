@@ -1,4 +1,9 @@
-"""Setup script for easy project initialization."""
+"""
+Setup script for easy project initialization.
+
+Copyright (c) 2026 Jan Van Herck
+GitHub: https://github.com/jvherck
+"""
 
 import sys
 from pathlib import Path
@@ -39,9 +44,7 @@ def main():
 
     # Check if virtual environment is active
     print("\n🔍 Checking virtual environment...")
-    if hasattr(sys, "real_prefix") or (
-            hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
-    ):
+    if hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix):
         print("✅ Virtual environment is active")
     else:
         print("⚠️  No virtual environment detected")
@@ -51,6 +54,7 @@ def main():
     print("\n📦 Checking dependencies...")
     try:
         import discord
+
         print(f"✅ discord.py {discord.__version__} installed")
     except ImportError:
         print("❌ discord.py not installed")
