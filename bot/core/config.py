@@ -81,9 +81,7 @@ class BotConfig(BaseSettings):
 
     # Database Configuration
     database_type: DatabaseType = Field(default=DatabaseType.SQLITE, description="Database type")
-    database_url: str = Field(
-        default="sqlite:///data/bot.db", description="Database connection URL"
-    )
+    database_url: str = Field(default="sqlite:///data/bot.db", description="Database connection URL")
 
     # PostgreSQL specific
     postgres_user: str | None = Field(default=None, description="PostgreSQL username")
@@ -105,15 +103,9 @@ class BotConfig(BaseSettings):
     enable_presence_update: bool = Field(default=True, description="Enable presence updates")
 
     # Bot Presence
-    presence_type: PresenceType = Field(
-        default=PresenceType.PLAYING, description="Bot activity type"
-    )
-    presence_text: str = Field(
-        default="with commands | !help", description="Bot activity text"
-    )
-    presence_status: PresenceStatus = Field(
-        default=PresenceStatus.ONLINE, description="Bot status"
-    )
+    presence_type: PresenceType = Field(default=PresenceType.PLAYING, description="Bot activity type")
+    presence_text: str = Field(default="with commands | !help", description="Bot activity text")
+    presence_status: PresenceStatus = Field(default=PresenceStatus.ONLINE, description="Bot status")
 
     # Development Settings
     debug_mode: bool = Field(default=False, description="Enable debug mode")
@@ -121,9 +113,7 @@ class BotConfig(BaseSettings):
 
     # Rate Limiting
     command_cooldown: int = Field(default=3, description="Command cooldown in seconds")
-    max_commands_per_minute: int = Field(
-        default=20, description="Max commands per minute per user"
-    )
+    max_commands_per_minute: int = Field(default=20, description="Max commands per minute per user")
 
     # Timezone
     timezone: str = Field(default="UTC", description="Bot timezone")
@@ -135,12 +125,12 @@ class BotConfig(BaseSettings):
         data = info.data
         if data.get("database_type") == DatabaseType.POSTGRESQL:
             if all(
-                    [
-                        data.get("postgres_user"),
-                        data.get("postgres_password"),
-                        data.get("postgres_db"),
-                        data.get("postgres_host"),
-                    ]
+                [
+                    data.get("postgres_user"),
+                    data.get("postgres_password"),
+                    data.get("postgres_db"),
+                    data.get("postgres_host"),
+                ]
             ):
                 return (
                     f"postgresql+asyncpg://{data['postgres_user']}:"

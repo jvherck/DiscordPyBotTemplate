@@ -46,16 +46,12 @@ class General(commands.Cog):
         )
 
         embed.add_field(name="Version", value=self.bot.config.bot_version, inline=True)
-        embed.add_field(
-            name="Environment", value=self.bot.config.environment.value, inline=True
-        )
+        embed.add_field(name="Environment", value=self.bot.config.environment.value, inline=True)
         embed.add_field(name="Prefix", value=self.bot.config.discord_prefix, inline=True)
 
         embed.add_field(name="Guilds", value=len(self.bot.guilds), inline=True)
         embed.add_field(name="Users", value=len(self.bot.users), inline=True)
-        embed.add_field(
-            name="Commands", value=len(self.bot.commands), inline=True
-        )
+        embed.add_field(name="Commands", value=len(self.bot.commands), inline=True)
 
         if self.bot.uptime:
             hours, remainder = divmod(int(self.bot.uptime), 3600)
@@ -63,9 +59,7 @@ class General(commands.Cog):
             uptime_str = f"{hours}h {minutes}m {seconds}s"
             embed.add_field(name="Uptime", value=uptime_str, inline=True)
 
-        embed.add_field(
-            name="Python", value=platform.python_version(), inline=True
-        )
+        embed.add_field(name="Python", value=platform.python_version(), inline=True)
         embed.add_field(
             name="Platform",
             value=f"{platform.system()} {platform.release()}",
@@ -106,12 +100,8 @@ class General(commands.Cog):
         embed.add_field(name="Roles", value=len(guild.roles), inline=True)
         embed.add_field(name="Channels", value=len(guild.channels), inline=True)
 
-        embed.add_field(
-            name="Boost Level", value=f"Level {guild.premium_tier}", inline=True
-        )
-        embed.add_field(
-            name="Boosts", value=guild.premium_subscription_count or 0, inline=True
-        )
+        embed.add_field(name="Boost Level", value=f"Level {guild.premium_tier}", inline=True)
+        embed.add_field(name="Boosts", value=guild.premium_subscription_count or 0, inline=True)
 
         if guild.icon:
             embed.set_thumbnail(url=guild.icon.url)

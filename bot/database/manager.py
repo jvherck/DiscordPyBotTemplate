@@ -8,7 +8,7 @@ GitHub: https://github.com/jvherck
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -36,7 +36,7 @@ class DatabaseManager:
         self.config = config
         self.logger = logger
         self.engine = None
-        self.session_factory: Optional[async_sessionmaker[AsyncSession]] = None
+        self.session_factory: async_sessionmaker[AsyncSession] | None = None
 
     async def initialize(self) -> None:
         """Initialize database connection and create tables."""
@@ -53,9 +53,7 @@ class DatabaseManager:
             )
 
             # Create session factory
-            self.session_factory = async_sessionmaker(
-                self.engine, class_=AsyncSession, expire_on_commit=False
-            )
+            self.session_factory = async_sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
 
             # Create all tables
             async with self.engine.begin() as conn:
@@ -88,9 +86,7 @@ class DatabaseManager:
             raise RuntimeError("Database not initialized. Call initialize() first.")
         return self.session_factory()
 
-    async def get(
-            self, model: Type[T], id_value: Any, id_column: str = "id"
-    ) -> Optional[T]:
+    async def get(self, model: type[T], id_value: Any, id_column: str = "id") -> T | None:
         """
         Get a single record by ID.
 
@@ -150,7 +146,7 @@ class DatabaseManager:
             await session.delete(instance)
             await session.commit()
 
-    async def get_all(self, model: Type[T], limit: Optional[int] = None) -> list[T]:
+    async def get_all(self, model: type[T], limit: int | None = None) -> list[T]:
         """
         Get all records of a model.
 
@@ -168,7 +164,7 @@ class DatabaseManager:
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
-    async def execute_raw(self, query: str, params: Optional[dict] = None) -> Any:
+    async def execute_raw(self, query: str, params: dict | None = None) -> Any:
         """
         Execute a raw SQL query.
 

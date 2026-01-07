@@ -55,14 +55,10 @@ class TemplateEvents(commands.Cog):
 
         # Example: Log messages starting with a specific prefix
         if message.content.startswith(">>log"):
-            self.bot.logger.info(
-                f"Special message from {message.author}: {message.content}"
-            )
+            self.bot.logger.info(f"Special message from {message.author}: {message.content}")
 
     @commands.Cog.listener()
-    async def on_message_edit(
-        self, before: discord.Message, after: discord.Message
-    ) -> None:
+    async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
         """
         Listen for message edits.
 
@@ -77,8 +73,7 @@ class TemplateEvents(commands.Cog):
         # Example: Log message edits
         if before.content != after.content:
             self.bot.logger.debug(
-                f"Message edited by {before.author} in {before.channel}: "
-                f'"{before.content}" -> "{after.content}"'
+                f"Message edited by {before.author} in {before.channel}: " f'"{before.content}" -> "{after.content}"'
             )
 
     @commands.Cog.listener()
@@ -94,10 +89,7 @@ class TemplateEvents(commands.Cog):
             return
 
         # Example: Log deleted messages
-        self.bot.logger.debug(
-            f"Message deleted by {message.author} in {message.channel}: "
-            f'"{message.content}"'
-        )
+        self.bot.logger.debug(f"Message deleted by {message.author} in {message.channel}: " f'"{message.content}"')
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
@@ -131,9 +123,7 @@ class TemplateEvents(commands.Cog):
         self.bot.logger.info(f"{member} left {member.guild.name}")
 
     @commands.Cog.listener()
-    async def on_reaction_add(
-        self, reaction: discord.Reaction, user: discord.User
-    ) -> None:
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User) -> None:
         """
         Listen for reactions being added to messages.
 
@@ -147,9 +137,7 @@ class TemplateEvents(commands.Cog):
 
         # Example: Log specific emoji reactions
         if str(reaction.emoji) == "⭐":
-            self.bot.logger.info(
-                f"{user} starred a message in {reaction.message.channel}"
-            )
+            self.bot.logger.info(f"{user} starred a message in {reaction.message.channel}")
 
     @commands.Cog.listener()
     async def on_voice_state_update(

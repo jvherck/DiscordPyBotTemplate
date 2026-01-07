@@ -12,7 +12,7 @@ import sys
 import time
 import traceback
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import discord
 from discord.ext import commands
@@ -38,10 +38,10 @@ class DiscordBot(commands.Bot):
     """
 
     def __init__(
-            self,
-            config: Optional[BotConfig] = None,
-            *args: Any,
-            **kwargs: Any,
+        self,
+        config: BotConfig | None = None,
+        *args: Any,
+        **kwargs: Any,
     ):
         """
         Initialize the Discord bot.
@@ -63,24 +63,22 @@ class DiscordBot(commands.Bot):
 
         # Initialize parent Bot class
         super().__init__(
+            *args,
             command_prefix=self._get_prefix,
             intents=intents,
             help_command=commands.DefaultHelpCommand(),
-            *args,
             **kwargs,
         )
 
         # Initialize components
-        self.db: Optional[DatabaseManager] = None
-        self.start_time: Optional[float] = None
+        self.db: DatabaseManager | None = None
+        self.start_time: float | None = None
         self._is_ready = False
 
         self.logger.info(f"Initializing {self.config.bot_name} v{self.config.bot_version}")
         self.logger.info(f"Environment: {self.config.environment.value}")
 
-    async def _get_prefix(
-            self, bot: DiscordBot, message: discord.Message
-    ) -> list[str]:
+    async def _get_prefix(self, bot: DiscordBot, message: discord.Message) -> list[str]:
         """
         Get command prefix for a guild.
 
@@ -98,9 +96,7 @@ class DiscordBot(commands.Bot):
             try:
                 from bot.database.models import GuildConfig
 
-                guild_config = await self.db.get(
-                    GuildConfig, message.guild.id, "guild_id"
-                )
+                guild_config = await self.db.get(GuildConfig, message.guild.id, "guild_id")
                 if guild_config and guild_config.prefix:
                     prefixes.insert(0, guild_config.prefix)
             except Exception as e:
@@ -173,9 +169,7 @@ class DiscordBot(commands.Bot):
                 self.logger.error(traceback.format_exc())
                 failed += 1
 
-        self.logger.info(
-            f"Extension loading complete: {loaded} loaded, {failed} failed"
-        )
+        self.logger.info(f"Extension loading complete: {loaded} loaded, {failed} failed")
 
     async def on_ready(self) -> None:
         """Called when the bot is ready and connected to Discord."""
@@ -187,7 +181,7 @@ class DiscordBot(commands.Bot):
         self.start_time = time.time()
 
         self.logger.info("=" * 50)
-        self.logger.info(f"Bot is ready!")
+        self.logger.info("Bot is ready!")
         self.logger.info(f"Logged in as: {self.user.name} (ID: {self.user.id})")
         self.logger.info(f"Discord.py version: {discord.__version__}")
         self.logger.info(f"Python version: {sys.version.split()[0]}")
@@ -231,14 +225,9 @@ class DiscordBot(commands.Bot):
                 name=self.config.presence_text,
             )
 
-            await self.change_presence(
-                activity=activity, status=status_map[self.config.presence_status]
-            )
+            await self.change_presence(activity=activity, status=status_map[self.config.presence_status])
 
-            self.logger.info(
-                f"Presence set: {self.config.presence_type.value} "
-                f"{self.config.presence_text}"
-            )
+            self.logger.info(f"Presence set: {self.config.presence_type.value} " f"{self.config.presence_text}")
         except Exception as e:
             self.logger.error(f"Failed to set presence: {e}")
 
@@ -251,8 +240,7 @@ class DiscordBot(commands.Bot):
         """
         if self.config.enable_command_logging:
             self.logger.info(
-                f"Command '{ctx.command.name}' invoked by {ctx.author} "
-                f"in {ctx.guild.name if ctx.guild else 'DM'}"
+                f"Command '{ctx.command.name}' invoked by {ctx.author} " f"in {ctx.guild.name if ctx.guild else 'DM'}"
             )
 
     async def on_command_completion(self, ctx: commands.Context) -> None:
@@ -265,9 +253,7 @@ class DiscordBot(commands.Bot):
         if self.config.enable_command_logging and self.db:
             await self._log_command(ctx, success=True)
 
-    async def on_command_error(
-            self, ctx: commands.Context, error: commands.CommandError
-    ) -> None:
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
         """
         Global command error handler.
 
@@ -297,28 +283,20 @@ class DiscordBot(commands.Bot):
 
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.send(
-                f"❌ I don't have the required permissions. "
-                f"Missing: {', '.join(error.missing_permissions)}"
+                f"❌ I don't have the required permissions. " f"Missing: {', '.join(error.missing_permissions)}"
             )
             return
 
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(
-                f"⏰ This command is on cooldown. "
-                f"Try again in {error.retry_after:.1f} seconds."
-            )
+            await ctx.send(f"⏰ This command is on cooldown. " f"Try again in {error.retry_after:.1f} seconds.")
             return
 
         # Log unexpected errors
-        self.logger.error(
-            f"Command error in {ctx.command}: {error}", exc_info=error
-        )
-        await ctx.send(
-            "❌ An unexpected error occurred while executing the command."
-        )
+        self.logger.error(f"Command error in {ctx.command}: {error}", exc_info=error)
+        await ctx.send("❌ An unexpected error occurred while executing the command.")
 
     async def _on_app_command_error(
-            self, interaction: discord.Interaction, error: discord.app_commands.AppCommandError
+        self, interaction: discord.Interaction, error: discord.app_commands.AppCommandError
     ) -> None:
         """
         Global app command (slash command) error handler.
@@ -347,10 +325,10 @@ class DiscordBot(commands.Bot):
             pass
 
     async def _log_command(
-            self,
-            ctx: commands.Context,
-            success: bool = True,
-            error: Optional[Exception] = None,
+        self,
+        ctx: commands.Context,
+        success: bool = True,
+        error: Exception | None = None,
     ) -> None:
         """
         Log command usage to database.
@@ -366,9 +344,9 @@ class DiscordBot(commands.Bot):
                 channel_id=ctx.channel.id,
                 user_id=ctx.author.id,
                 command_name=ctx.command.qualified_name if ctx.command else "unknown",
-                command_args=ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with):].strip()
-                if ctx.invoked_with
-                else None,
+                command_args=(
+                    ctx.message.content[len(ctx.prefix) + len(ctx.invoked_with) :].strip() if ctx.invoked_with else None
+                ),
                 is_slash_command=False,
                 success=success,
                 error_message=str(error) if error else None,
@@ -378,10 +356,10 @@ class DiscordBot(commands.Bot):
             self.logger.error(f"Failed to log command: {e}")
 
     async def _log_error(
-            self,
-            error: Exception,
-            ctx: Optional[commands.Context] = None,
-            interaction: Optional[discord.Interaction] = None,
+        self,
+        error: Exception,
+        ctx: commands.Context | None = None,
+        interaction: discord.Interaction | None = None,
     ) -> None:
         """
         Log error to database.
@@ -393,39 +371,17 @@ class DiscordBot(commands.Bot):
         """
         try:
             error_log = ErrorLog(
-                guild_id=(
-                    ctx.guild.id
-                    if ctx and ctx.guild
-                    else interaction.guild_id
-                    if interaction
-                    else None
-                ),
-                channel_id=(
-                    ctx.channel.id
-                    if ctx
-                    else interaction.channel_id
-                    if interaction
-                    else None
-                ),
-                user_id=(
-                    ctx.author.id
-                    if ctx
-                    else interaction.user.id
-                    if interaction
-                    else None
-                ),
+                guild_id=(ctx.guild.id if ctx and ctx.guild else interaction.guild_id if interaction else None),
+                channel_id=(ctx.channel.id if ctx else interaction.channel_id if interaction else None),
+                user_id=(ctx.author.id if ctx else interaction.user.id if interaction else None),
                 command_name=(
                     ctx.command.qualified_name
                     if ctx and ctx.command
-                    else interaction.command.name
-                    if interaction and interaction.command
-                    else None
+                    else interaction.command.name if interaction and interaction.command else None
                 ),
                 error_type=type(error).__name__,
                 error_message=str(error),
-                traceback="".join(
-                    traceback.format_exception(type(error), error, error.__traceback__)
-                ),
+                traceback="".join(traceback.format_exception(type(error), error, error.__traceback__)),
             )
             await self.db.create(error_log)
         except Exception as e:
@@ -444,7 +400,7 @@ class DiscordBot(commands.Bot):
 
         self.logger.info("Bot shutdown complete")
 
-    async def start(self, token: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
+    async def start(self, token: str | None = None, *args: Any, **kwargs: Any) -> None:
         """
         Start the bot asynchronously.
 
@@ -467,7 +423,7 @@ class DiscordBot(commands.Bot):
 
         await super().start(token, *args, **kwargs)
 
-    def run_with_asyncio(self, token: Optional[str] = None) -> None:
+    def run_with_asyncio(self, token: str | None = None) -> None:
         """
         Run the bot using asyncio.run().
 
@@ -491,7 +447,7 @@ class DiscordBot(commands.Bot):
             self.logger.critical(traceback.format_exc())
             raise
 
-    def run(self, token: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
+    def run(self, token: str | None = None, *args: Any, **kwargs: Any) -> None:
         """
         Run the bot using the standard discord.py run method.
 
@@ -515,7 +471,7 @@ class DiscordBot(commands.Bot):
         super().run(token, *args, **kwargs)
 
     @property
-    def uptime(self) -> Optional[float]:
+    def uptime(self) -> float | None:
         """
         Get bot uptime in seconds.
 

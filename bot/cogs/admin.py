@@ -7,7 +7,7 @@ GitHub: https://github.com/jvherck
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands
@@ -43,7 +43,7 @@ class Admin(commands.Cog):
 
     @commands.command(name="sync", hidden=True)
     @commands.is_owner()
-    async def sync_prefix(self, ctx: commands.Context, spec: Optional[str] = None) -> None:
+    async def sync_prefix(self, ctx: commands.Context, spec: str | None = None) -> None:
         """
         Sync slash commands (Prefix version).
         Usage: !sync [global|current|copy|clear]
@@ -80,19 +80,19 @@ class Admin(commands.Cog):
             await ctx.reply("❌ Database connection is unhealthy")
 
     @app_commands.command(name="sync", description="Sync slash commands")
-    @app_commands.describe(
-        spec="Sync specification: global (default), current, copy, or clear"
+    @app_commands.describe(spec="Sync specification: global (default), current, copy, or clear")
+    @app_commands.choices(
+        spec=[
+            app_commands.Choice(name="Global", value="global"),
+            app_commands.Choice(name="Current Guild", value="current"),
+            app_commands.Choice(name="Copy Global to Guild", value="copy"),
+            app_commands.Choice(name="Clear Guild", value="clear"),
+        ]
     )
-    @app_commands.choices(spec=[
-        app_commands.Choice(name="Global", value="global"),
-        app_commands.Choice(name="Current Guild", value="current"),
-        app_commands.Choice(name="Copy Global to Guild", value="copy"),
-        app_commands.Choice(name="Clear Guild", value="clear"),
-    ])
     async def sync_commands(
-            self,
-            interaction: discord.Interaction,
-            spec: Optional[app_commands.Choice[str]] = None,
+        self,
+        interaction: discord.Interaction,
+        spec: app_commands.Choice[str] | None = None,
     ) -> None:
         """
         Sync slash commands.
@@ -113,9 +113,7 @@ class Admin(commands.Cog):
             # Copy global to current guild
             self.bot.tree.copy_global_to(guild=interaction.guild)
             synced = await self.bot.tree.sync(guild=interaction.guild)
-            await interaction.followup.send(
-                f"✅ Copied and synced {len(synced)} commands to current guild"
-            )
+            await interaction.followup.send(f"✅ Copied and synced {len(synced)} commands to current guild")
 
         elif spec_value == "clear":
             # Clear current guild and sync
@@ -182,7 +180,7 @@ class Admin(commands.Cog):
     @app_commands.command(name="cogs", description="List all loaded cogs")
     async def list_cogs(self, interaction: discord.Interaction) -> None:
         """List all loaded cogs."""
-        cogs = [cog for cog in self.bot.cogs.keys()]
+        cogs = list(self.bot.cogs.keys())
 
         if not cogs:
             await interaction.response.send_message("No cogs loaded.", ephemeral=True)

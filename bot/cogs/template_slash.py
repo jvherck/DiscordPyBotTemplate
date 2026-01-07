@@ -34,9 +34,7 @@ class TemplateSlash(commands.Cog):
 
     @app_commands.command(name="hello", description="Say hello to someone")
     @app_commands.describe(user="The user to greet (optional)")
-    async def hello(
-        self, interaction: discord.Interaction, user: discord.User | None = None
-    ) -> None:
+    async def hello(self, interaction: discord.Interaction, user: discord.User | None = None) -> None:
         """
         A simple slash command that greets a user.
 
@@ -104,9 +102,7 @@ class TemplateSlash(commands.Cog):
             app_commands.Choice(name="Option 3", value="opt3"),
         ]
     )
-    async def choice(
-        self, interaction: discord.Interaction, option: app_commands.Choice[str]
-    ) -> None:
+    async def choice(self, interaction: discord.Interaction, option: app_commands.Choice[str]) -> None:
         """
         Demonstrate how to use choices in slash commands.
 
@@ -114,14 +110,10 @@ class TemplateSlash(commands.Cog):
             interaction: The interaction
             option: The selected choice
         """
-        await interaction.response.send_message(
-            f"You selected: **{option.name}** (value: `{option.value}`)"
-        )
+        await interaction.response.send_message(f"You selected: **{option.name}** (value: `{option.value}`)")
 
     # Example of a command group
-    group = app_commands.Group(
-        name="example", description="Example command group"
-    )
+    group = app_commands.Group(name="example", description="Example command group")
 
     @group.command(name="subcommand", description="An example subcommand")
     @app_commands.describe(text="Some text to echo")
