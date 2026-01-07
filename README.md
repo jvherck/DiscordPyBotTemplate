@@ -35,34 +35,36 @@ starting point to build scalable, maintainable Discord bots with clean architect
 ```
 DiscordPyBotTemplate/
 ├── bot/
-│   ├── __init__.py             # Package init + version management
+│   ├── cogs/
+│   │   ├── __init__.py
+│   │   ├── admin.py            # Admin slash commands (owner only)
+│   │   ├── general.py          # General slash commands
+│   │   ├── template_events.py  # Template for event listeners
+│   │   └── template_slash.py   # Template for slash commands
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── bot.py              # Main bot class
 │   │   └── config.py           # Configuration with Pydantic
-│   ├── cogs/
-│   │   ├── __init__.py
-│   │   ├── general.py          # General slash commands
-│   │   ├── admin.py            # Admin slash commands (owner only)
-│   │   ├── template_slash.py   # Template for slash commands
-│   │   └── template_events.py  # Template for event listeners
 │   ├── database/
 │   │   ├── __init__.py
-│   │   ├── models.py           # SQLAlchemy models
-│   │   └── manager.py          # Database operations
-│   └── utils/
-│       ├── __init__.py
-│       └── logger.py           # Colored logging setup
-├── logs/                       # Log files (auto-created)
+│   │   ├── manager.py          # Database operations
+│   │   └── models.py           # SQLAlchemy models
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── logger.py           # Colored logging setup
+│   └── __init__.py             # Package init + version management
 ├── data/                       # SQLite database (auto-created)
+├── logs/                       # Log files (auto-created)
+├── scripts/                    # Scripts to run for easy setup/management (`python scripts/script.py`)
 ├── .env.example                # Example configuration
 ├── .gitignore
-├── requirements.txt
-├── pyproject.toml              # Tool configuration (black, ruff, mypy)
-├── Dockerfile
 ├── docker-compose.yml
+├── Dockerfile
+├── LICENSE
 ├── main.py                     # Entry point
-└── README.md
+├── pyproject.toml              # Tool configuration (black, ruff, mypy)
+├── README.md
+└── requirements.txt
 ```
 
 ## Getting Started
