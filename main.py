@@ -21,7 +21,7 @@ def main() -> None:
     bot = DiscordBot(config=config)
 
     try:
-        bot.run_bot()
+        bot.run()
     except KeyboardInterrupt:
         print("\nBot stopped by user")
         sys.exit(0)

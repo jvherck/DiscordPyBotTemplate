@@ -70,7 +70,7 @@ class BotConfig(BaseSettings):
     )
 
     # Discord Configuration
-    discord_token: str = Field(..., description="Discord bot token")
+    discord_token: str | None = Field(default=None, description="Discord bot token")
     discord_prefix: str = Field(default="!", description="Command prefix")
 
     # Bot Settings

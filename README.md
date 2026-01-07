@@ -157,7 +157,7 @@ DISCORD_TOKEN=your_bot_token_here
 
 #### Bot Settings
 ```env
-DISCORD_PREFIX=!                    # Command prefix (not used for regular commands - only admin)
+DISCORD_PREFIX=!                    # Command prefix (used for admin fallback commands)
 BOT_NAME=MyDiscordBot              # Bot name for logging
 ENVIRONMENT=development            # development, staging, production
 IGNORED_COGS=template_slash,template_events  # Comma-separated cogs to ignore on startup
@@ -234,8 +234,27 @@ class MyBot(DiscordBot):
 
 if __name__ == "__main__":
     bot = MyBot()
-    bot.run_bot()
+    bot.run()
 ```
+
+### Startup Methods
+
+The `DiscordBot` class provides three methods to start your bot, catering to different use cases:
+
+1. **`run()` (Recommended)**
+   - **Description:** The standard, most robust way to start the bot. It handles the event loop, signal handling (Ctrl+C), and cleanup automatically.
+   - **Usage:** `bot.run()`
+   - **When to use:** For almost all standard use cases where the bot is the main application.
+
+2. **`run_with_asyncio()`**
+   - **Description:** Creates a new asyncio event loop and runs the bot inside it. Useful if you need a fresh loop but want specific control or the error handling wrapper provided by this template.
+   - **Usage:** `bot.run_with_asyncio()`
+   - **When to use:** If you need to run the bot synchronously but require a specific asyncio setup different from the standard `run()` method.
+
+3. **`start()`**
+   - **Description:** An `async` method that starts the bot connection. It **does not** handle the event loop; you must await it inside an existing loop.
+   - **Usage:** `await bot.start()`
+   - **When to use:** If you are integrating the bot into a larger async application (e.g., running alongside a web server like FastAPI or Aiohttp) and already have an event loop running.
 
 ### Creating Cogs
 
@@ -375,15 +394,15 @@ class MyModel(Base):
 
 #### Admin Commands (Owner Only)
 
-All admin commands are slash commands and only work for the bot owner:
+Most admin commands are slash commands, but some have prefix-based fallbacks (using `!`) for troubleshooting:
 
-- `/sync` - Sync slash commands (with options for global, current guild, copy, or clear)
+- `/sync` (or `!sync`) - Sync slash commands (with options for global, current guild, copy, or clear)
 - `/reload <extension>` - Reload a cog
 - `/load <extension>` - Load a cog
 - `/unload <extension>` - Unload a cog
 - `/cogs` - List all loaded cogs
 - `/shutdown` - Shut down the bot
-- `/dbhealth` - Check database health
+- `/dbhealth` (or `!dbhealth`) - Check database health
 
 #### General Commands (All Users)
 
@@ -487,6 +506,8 @@ LOG_LEVEL=DEBUG
 
 ## Contributing
 
+Feel free to submit issues and pull requests to improve this template!
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
@@ -512,7 +533,3 @@ Built with:
 - [SQLAlchemy](https://www.sqlalchemy.org/) - Database ORM
 - [Pydantic](https://docs.pydantic.dev/) - Configuration management
 - [colorlog](https://github.com/borntyping/python-colorlog) - Colored logging
-
-## Contributing
-
-Feel free to submit issues and pull requests to improve this template!

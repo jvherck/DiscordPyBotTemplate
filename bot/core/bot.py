@@ -446,25 +446,42 @@ class DiscordBot(commands.Bot):
 
     async def start(self, token: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
         """
-        Start the bot.
+        Start the bot asynchronously.
+
+        This method calls the superclass's start method. It is an async method
+        and must be awaited. It does not handle the event loop for you.
+
+        Use this method if:
+        - You are already running inside an asyncio event loop.
+        - You need to run other async tasks alongside the bot.
+        - You want full control over the event loop execution.
 
         Args:
             token: Discord bot token (uses config if not provided)
-            *args: Additional arguments
-            **kwargs: Additional keyword arguments
+            *args: Additional arguments passed to super().start()
+            **kwargs: Additional keyword arguments passed to super().start()
         """
         token = token or self.config.discord_token
+        if not token:
+            raise ValueError("No Discord token found in config or arguments.")
+
         await super().start(token, *args, **kwargs)
 
-    def run_bot(self, token: Optional[str] = None) -> None:
+    def run_with_asyncio(self, token: Optional[str] = None) -> None:
         """
-        Run the bot (blocking).
+        Run the bot using asyncio.run().
+
+        This method creates a new asyncio event loop and runs the start() method
+        inside it. It handles KeyboardInterrupt and logs fatal errors.
+
+        Use this method if:
+        - You want to run the bot synchronously but need a fresh event loop.
+        - You want specific error handling wrapper around the start process provided here.
+        - You are not using the standard discord.py run() implementation.
 
         Args:
             token: Discord bot token (uses config if not provided)
         """
-        token = token or self.config.discord_token
-
         try:
             asyncio.run(self.start(token))
         except KeyboardInterrupt:
@@ -473,6 +490,29 @@ class DiscordBot(commands.Bot):
             self.logger.critical(f"Fatal error: {e}")
             self.logger.critical(traceback.format_exc())
             raise
+
+    def run(self, token: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
+        """
+        Run the bot using the standard discord.py run method.
+
+        This is the RECOMMENDED way to start the bot for most users.
+        It handles the event loop, signal handling, and cleanup automatically.
+
+        Use this method if:
+        - You are starting the bot as a standalone application.
+        - You don't need to manage the event loop yourself.
+        - You want the standard, robust behavior provided by the library.
+
+        Args:
+            token: Discord bot token (uses config if not provided)
+            *args: Additional arguments passed to super().run()
+            **kwargs: Additional keyword arguments passed to super().run()
+        """
+        token = token or self.config.discord_token
+        if not token:
+            raise ValueError("No Discord token found in config or arguments.")
+
+        super().run(token, *args, **kwargs)
 
     @property
     def uptime(self) -> Optional[float]:

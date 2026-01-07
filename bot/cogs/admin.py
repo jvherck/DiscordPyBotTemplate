@@ -41,6 +41,44 @@ class Admin(commands.Cog):
         """
         return await self.bot.is_owner(interaction.user)
 
+    @commands.command(name="sync", hidden=True)
+    @commands.is_owner()
+    async def sync_prefix(self, ctx: commands.Context, spec: Optional[str] = None) -> None:
+        """
+        Sync slash commands (Prefix version).
+        Usage: !sync [global|current|copy|clear]
+        """
+        await ctx.typing()
+
+        if spec == "current":
+            synced = await self.bot.tree.sync(guild=ctx.guild)
+            await ctx.reply(f"✅ Synced {len(synced)} commands to current guild")
+        elif spec == "copy":
+            self.bot.tree.copy_global_to(guild=ctx.guild)
+            synced = await self.bot.tree.sync(guild=ctx.guild)
+            await ctx.reply(f"✅ Copied and synced {len(synced)} commands to current guild")
+        elif spec == "clear":
+            self.bot.tree.clear_commands(guild=ctx.guild)
+            await self.bot.tree.sync(guild=ctx.guild)
+            await ctx.reply("✅ Cleared commands from current guild")
+        else:
+            synced = await self.bot.tree.sync()
+            await ctx.reply(f"✅ Synced {len(synced)} commands globally")
+
+    @commands.command(name="dbhealth", hidden=True)
+    @commands.is_owner()
+    async def dbhealth_prefix(self, ctx: commands.Context) -> None:
+        """Check database connection health (Prefix version)."""
+        if not self.bot.db:
+            await ctx.reply("❌ Database not initialized")
+            return
+
+        is_healthy = await self.bot.db.health_check()
+        if is_healthy:
+            await ctx.reply("✅ Database connection is healthy")
+        else:
+            await ctx.reply("❌ Database connection is unhealthy")
+
     @app_commands.command(name="sync", description="Sync slash commands")
     @app_commands.describe(
         spec="Sync specification: global (default), current, copy, or clear"
