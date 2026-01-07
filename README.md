@@ -228,9 +228,18 @@ The following tools are pre-configured:
 
 - **Black (Formatter):**
     - Configured with a **line length of 120** (instead of the default 88) to accommodate modern screens and slightly
-      longer discord.py lines.
+      longer
+    - discord.py lines.
     - Targets Python 3.11+ syntax.
 
+> **JetBrains Integration:** If you use PyCharm, you can configure the IDE to use the Black binary (and this
+> configuration file) automatically when you run the standard "Reformat Code" action.
+> 1. Go to **Settings/Preferences** > **Tools** > **Black**.
+> 2. Check the box **"On code reformat"**.
+> 3. Now, pressing `Ctrl+Alt+L` (or your specific reformat shortcut) will format the file using Black settings
+     defined here.
+>
+> ![use-black-formatter-setting.png](resources/images/use-black-formatter-setting.png)
 
 - **Ruff (Linter):**
     - A high-performance replacement for Flake8 and Isort.
@@ -244,6 +253,11 @@ The following tools are pre-configured:
     - Includes `ignore_missing_imports` to prevent false positives from libraries that don't fully support typing.
 
 > Check the Development: Code Formatting section to see examples of how to use these tools.
+
+---
+
+Would you like me to create a "Troubleshooting" section for when Black doesn't detect the `pyproject.toml` file
+correctly in the IDE?
 
 ## Usage
 
