@@ -90,7 +90,7 @@ class BotConfig(BaseSettings):
 
     # Database Configuration
     database_type: DatabaseType = Field(default=DatabaseType.SQLITE, description="Database type")
-    database_url: str = Field(default="sqlite:///data/bot.db", description="Database connection URL")
+    database_url: str = Field(default="sqlite+aiosqlite:///data/bot.db", description="Database connection URL")
 
     # PostgreSQL specific
     postgres_user: str | None = Field(default=None, description="PostgreSQL username")
@@ -130,7 +130,7 @@ class BotConfig(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def build_database_url(cls, v: str, info) -> str:
-        """Build PostgreSQL URL if using PostgreSQL."""
+        """Build PostgreSQL URL if using PostgreSQL or fix SQLite URL."""
         data = info.data
         if data.get("database_type") == DatabaseType.POSTGRESQL:
             if all(
@@ -146,6 +146,9 @@ class BotConfig(BaseSettings):
                     f"{data['postgres_password']}@{data['postgres_host']}:"
                     f"{data.get('postgres_port', 5432)}/{data['postgres_db']}"
                 )
+        elif data.get("database_type") == DatabaseType.SQLITE:
+            if v and v.startswith("sqlite://") and not v.startswith("sqlite+aiosqlite://"):
+                return v.replace("sqlite://", "sqlite+aiosqlite://", 1)
         return v
 
     @field_validator("log_file_path", mode="before")
