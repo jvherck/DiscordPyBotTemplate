@@ -256,9 +256,6 @@ The following tools are pre-configured:
 
 ---
 
-Would you like me to create a "Troubleshooting" section for when Black doesn't detect the `pyproject.toml` file
-correctly in the IDE?
-
 ## Usage
 
 This is a **boilerplate** - you're meant to clone/fork it and build your bot directly on top of it. This is your
